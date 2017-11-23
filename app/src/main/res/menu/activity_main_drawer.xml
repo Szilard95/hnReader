@@ -2,37 +2,32 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
+        <group android:id="@+id/nav_stories">
+                <item
+                    android:id="@+id/nav_top"
+                    android:title="@string/top_stories" />
+                <item
+                    android:id="@+id/nav_new"
+                    android:title="@string/new_stories" />
+                <item
+                    android:id="@+id/nav_best"
+                    android:title="@string/best_stories" />
+        </group>
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
-    </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
-
+        <group android:id="@+id/nav_other_hn">
+                <item
+                    android:id="@+id/nav_ask"
+                    android:title="@string/ask_hn" />
+                <item
+                    android:id="@+id/nav_show"
+                    android:title="@string/show_hn" />
+                <item
+                    android:id="@+id/nav_jobs"
+                    android:title="@string/jobs" />
+        </group>
+        <group android:id="@+id/nav_other">
+                <item
+                    android:id="@+id/nav_saves"
+                    android:title="@string/saves" />
+        </group>
 </menu>
