@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingBottom="20dp">
 
     <LinearLayout
         android:layout_width="50dp"
@@ -26,6 +27,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/item_inner_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -35,7 +37,8 @@
             android:id="@+id/item_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lorem Ipsum Long Line" />
+            android:text="Lorem Ipsum Long Line"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/item_domain"

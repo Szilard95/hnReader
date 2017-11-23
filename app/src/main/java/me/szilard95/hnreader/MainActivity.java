@@ -9,11 +9,17 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.orm.SugarRecord;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +35,9 @@ import retrofit2.http.Path;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     Retrofit retrofit;
+    List<Item> itemList = new ArrayList<Item>();
     private HnApi api;
+    private ItemAdapter itemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +50,9 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                new test().execute();
+                itemAdapter.clear();
+                Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
+                new test().execute();
             }
         });
 
@@ -56,12 +66,28 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // TODO
+        final SugarExclusionStrategy strategy = new SugarExclusionStrategy(SugarRecord.class);
+        final Gson gson = new GsonBuilder()
+                .addDeserializationExclusionStrategy(strategy)
+                .addSerializationExclusionStrategy(strategy)
+                .create();
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://hacker-news.firebaseio.com")
                 .client(new OkHttpClient.Builder().build())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         api = retrofit.create(HnApi.class);
+
+        itemList = Item.listAll(Item.class);
+
+        itemAdapter = new ItemAdapter(itemList, this);
+        RecyclerView recyclerViewItems = findViewById(
+                R.id.recyclerViewItems);
+        recyclerViewItems.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewItems.setAdapter(itemAdapter);
+
+        if (itemList.size() == 0)
+            new test().execute();
     }
 
     @Override
@@ -115,31 +141,25 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    // TODO: HIGHLY EXPERIMENTAL
 
     private String retrofit() {
         try {
             List<Long> top = api.getTopStories().execute().body();
-            List<HnItem> l = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
-                l.add(api.getItem(top.get(i)).execute().body());
+                Item item = api.getItem(top.get(i)).execute().body();
+                itemList.add(item);
+                item.save();
             }
-            StringBuilder msg = new StringBuilder();
-            for (HnItem hnItem : l) {
-                msg.append('[').append(hnItem.score).append("] ").append(hnItem.title).append('\n');
-            }
-            return msg.toString();
+            return "Updated";
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Error while updating";
         }
-        return "";
     }
-
-
-    // TODO: HIGHLY EXPERIMENTAL
 
     interface HnApi {
         @GET("/v0/item/{item}.json")
-        Call<HnItem> getItem(@Path("item") long id);
+        Call<Item> getItem(@Path("item") long id);
 
         @GET("/v0/maxitem.json")
         Call<Long> getMaxItem();
@@ -148,17 +168,11 @@ public class MainActivity extends AppCompatActivity
         Call<List<Long>> getTopStories();
     }
 
-    private static class HnItem {
-        public long id;
-        public String title;
-        public String url;
-        public long score;
-    }
-
     private class test extends AsyncTask<Void, Void, String> {
         @Override
         protected void onPostExecute(String s) {
-            ((TextView) findViewById(R.id.EXP_content)).setText(s);
+            itemAdapter.notifyDataSetChanged();
+            Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
         }
 
         @Override
