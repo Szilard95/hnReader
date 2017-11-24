@@ -34,8 +34,10 @@ import retrofit2.http.Path;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    static List<Long> top = new ArrayList<>();
     Retrofit retrofit;
     List<Item> itemList = new ArrayList<Item>();
+    boolean updating = false;
     private HnApi api;
     private ItemAdapter itemAdapter;
 
@@ -50,7 +52,9 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (updating) return;
                 itemAdapter.clear();
+                top.clear();
                 Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
                 new test().execute();
             }
@@ -85,6 +89,22 @@ public class MainActivity extends AppCompatActivity
                 R.id.recyclerViewItems);
         recyclerViewItems.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewItems.setAdapter(itemAdapter);
+        recyclerViewItems.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (!recyclerView.canScrollVertically(1) && recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE && !updating) {
+                    new test().execute();
+                    Toast.makeText(MainActivity.this, "Loading more...", Toast.LENGTH_SHORT).show();
+                }
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
 
         if (itemList.size() == 0)
             new test().execute();
@@ -145,12 +165,18 @@ public class MainActivity extends AppCompatActivity
 
     private String retrofit() {
         try {
-            List<Long> top = api.getTopStories().execute().body();
-            for (int i = 0; i < 10; i++) {
+            if (top.size() == 0)
+                top = api.getTopStories().execute().body();
+            int listSize = itemList.size();
+//            Log.d("SIZE", "listSize: " + listSize + " topSize: " + top.size());
+            int numToFetch = Math.min(top.size() - listSize, 10);
+            if (numToFetch <= 0) return "End of HN :(";
+            for (int i = listSize; i < listSize + numToFetch; i++) {
                 Item item = api.getItem(top.get(i)).execute().body();
                 itemList.add(item);
                 item.save();
             }
+            // TODO saveInTx()
             return "Updated";
         } catch (IOException e) {
             return "Error while updating";
@@ -172,11 +198,13 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String s) {
             itemAdapter.notifyDataSetChanged();
+            updating = false;
             Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
         }
 
         @Override
         protected String doInBackground(Void... voids) {
+            updating = true;
             return retrofit();
         }
     }

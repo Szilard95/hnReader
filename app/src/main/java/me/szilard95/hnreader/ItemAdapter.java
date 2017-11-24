@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -37,20 +36,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
-        viewHolder.tvUser.setText(itemList.get(position).getBy());
-        viewHolder.tvTitle.setText(itemList.get(position).getTitle());
+        Item item = itemList.get(position);
+        viewHolder.tvUser.setText(item.getBy());
+        viewHolder.tvTitle.setText(item.getTitle());
         String domain = "";
         try {
-            domain = (new URI(itemList.get(position).getUrl()).getHost());
+            domain = item.getUrl() == null ? null : (new URI(item.getUrl()).getHost());
             if (domain == null) domain = "";
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             domain = "";
         }
         viewHolder.tvDomain.setText(domain);
-        viewHolder.tvScore.setText(itemList.get(position).getScore());
-        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-hh-MM hh:mm").format(new Date(Long.parseLong(itemList.get(position).getTime()) * 1000))));
+        viewHolder.tvScore.setText(item.getScore());
+        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-hh-MM hh:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
         viewHolder.tvNum.setText(String.valueOf(position + 1));
-        viewHolder.tvComments.setText(itemList.get(position).getDescendants());
+        viewHolder.tvComments.setText(item.getDescendants());
 
 
         viewHolder.btnComments.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +64,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             public void onClick(View v) {
                 Item item = itemList.get(position);
 
-                if (item.getUrl().equals("")) return;
+                if (item.getUrl() == null || item.getUrl().equals("")) return; //TODO
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(item.getUrl()));
