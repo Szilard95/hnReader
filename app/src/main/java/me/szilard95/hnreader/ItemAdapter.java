@@ -47,8 +47,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             domain = "";
         }
         viewHolder.tvDomain.setText(domain);
-        viewHolder.tvScore.setText(item.getScore());
-        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-hh-MM hh:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
+        viewHolder.tvScore.setText(item.getScore() + "p");
+        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-MM-dd hh:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
         viewHolder.tvNum.setText(String.valueOf(position + 1));
         viewHolder.tvComments.setText(item.getDescendants());
 
@@ -81,12 +81,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     public void addItem(Item item) {
         itemList.add(item);
-        item.save();
+//        item.save();
         notifyDataSetChanged();
     }
 
     public void clear() {
-        Item.deleteAll(Item.class);
+//        Item.deleteAll(Item.class);
         itemList.clear();
         notifyDataSetChanged();
     }

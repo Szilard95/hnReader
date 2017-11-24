@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity
     boolean updating = false;
     private HnApi api;
     private ItemAdapter itemAdapter;
+    private Call currentCall;
+    private boolean endReached = false;
+    private transient boolean shouldSave = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +58,9 @@ public class MainActivity extends AppCompatActivity
                 if (updating) return;
                 itemAdapter.clear();
                 top.clear();
+                endReached = false;
                 Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
-                new test().execute();
+                new test().execute(currentCall);
             }
         });
 
@@ -92,8 +96,8 @@ public class MainActivity extends AppCompatActivity
         recyclerViewItems.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (!recyclerView.canScrollVertically(1) && recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE && !updating) {
-                    new test().execute();
+                if (!recyclerView.canScrollVertically(1) && recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE && !updating && !endReached) {
+                    new test().execute(currentCall);
                     Toast.makeText(MainActivity.this, "Loading more...", Toast.LENGTH_SHORT).show();
                 }
                 super.onScrollStateChanged(recyclerView, newState);
@@ -106,8 +110,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        if (itemList.size() == 0)
-            new test().execute();
+        currentCall = api.getTopStories();
+
+        if (itemList.size() == 0) {
+            new test().execute(currentCall);
+        }
     }
 
     @Override
@@ -130,7 +137,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         }
@@ -138,24 +144,29 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-
+        shouldSave = false;
         if (id == R.id.nav_top) {
-
+            shouldSave = true;
+            currentCall = api.getTopStories();
         } else if (id == R.id.nav_new) {
-
+            currentCall = api.getNewStories();
         } else if (id == R.id.nav_best) {
-
+            currentCall = api.getBestStories();
         } else if (id == R.id.nav_ask) {
-
+            currentCall = api.getAskStories();
         } else if (id == R.id.nav_show) {
-
+            currentCall = api.getShowStories();
         } else if (id == R.id.nav_jobs) {
-
+            currentCall = api.getJobStories();
         }
+        itemAdapter.clear();
+        top.clear();
+        endReached = false;
+        Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
+        new test().execute(currentCall);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -163,23 +174,22 @@ public class MainActivity extends AppCompatActivity
     }
     // TODO: HIGHLY EXPERIMENTAL
 
-    private String retrofit() {
+    private CallStatus retrofit(Call<List<Long>> call) {
         try {
             if (top.size() == 0)
-                top = api.getTopStories().execute().body();
+                top = call.clone().execute().body();
             int listSize = itemList.size();
 //            Log.d("SIZE", "listSize: " + listSize + " topSize: " + top.size());
             int numToFetch = Math.min(top.size() - listSize, 10);
-            if (numToFetch <= 0) return "End of HN :(";
+            if (numToFetch <= 0) return CallStatus.END;
             for (int i = listSize; i < listSize + numToFetch; i++) {
                 Item item = api.getItem(top.get(i)).execute().body();
                 itemList.add(item);
-                item.save();
+                if (shouldSave) item.save();
             }
-            // TODO saveInTx()
-            return "Updated";
+            return CallStatus.OK;
         } catch (IOException e) {
-            return "Error while updating";
+            return CallStatus.ERROR;
         }
     }
 
@@ -187,25 +197,45 @@ public class MainActivity extends AppCompatActivity
         @GET("/v0/item/{item}.json")
         Call<Item> getItem(@Path("item") long id);
 
+        @GET("/v0/item/{user}.json")
+        Call<Item> getUser(@Path("user") String id);
+
         @GET("/v0/maxitem.json")
         Call<Long> getMaxItem();
 
         @GET("/v0/topstories.json")
         Call<List<Long>> getTopStories();
+
+        @GET("/v0/newstories.json")
+        Call<List<Long>> getNewStories();
+
+        @GET("/v0/beststories.json")
+        Call<List<Long>> getBestStories();
+
+        @GET("/v0/askstories.json")
+        Call<List<Long>> getAskStories();
+
+        @GET("/v0/showstories.json")
+        Call<List<Long>> getShowStories();
+
+        @GET("/v0/jobstories.json")
+        Call<List<Long>> getJobStories();
     }
 
-    private class test extends AsyncTask<Void, Void, String> {
+    private class test extends AsyncTask<Call<List<Long>>, Void, CallStatus> {
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(CallStatus s) {
             itemAdapter.notifyDataSetChanged();
             updating = false;
-            Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+            if (s == CallStatus.END)
+                endReached = true;
+            Toast.makeText(MainActivity.this, s.toString(), Toast.LENGTH_SHORT).show();
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected CallStatus doInBackground(Call<List<Long>>[] calls) {
             updating = true;
-            return retrofit();
+            return retrofit(calls[0]);
         }
     }
 }
