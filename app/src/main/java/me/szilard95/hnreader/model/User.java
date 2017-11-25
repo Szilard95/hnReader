@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.model;
 
 public class User {
     private String id;

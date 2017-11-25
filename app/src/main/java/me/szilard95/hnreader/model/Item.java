@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.model;
 
 import com.google.gson.annotations.SerializedName;
 import com.orm.SugarRecord;

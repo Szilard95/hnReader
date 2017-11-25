@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,13 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import me.szilard95.hnreader.R;
+import me.szilard95.hnreader.Utils;
+import me.szilard95.hnreader.activity.CommentsActivity;
+import me.szilard95.hnreader.activity.StoriesActivity;
+import me.szilard95.hnreader.model.Item;
+import me.szilard95.hnreader.network.NetworkingActivity;
 
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {

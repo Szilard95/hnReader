@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.activity;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.List;
+
+import me.szilard95.hnreader.R;
+import me.szilard95.hnreader.adapter.ItemAdapter;
+import me.szilard95.hnreader.model.Item;
 
 public class SavesActivity extends MainActivity {
 

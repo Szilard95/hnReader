@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.activity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -16,6 +16,8 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import java.util.List;
+
+import me.szilard95.hnreader.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

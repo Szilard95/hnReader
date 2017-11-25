@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.activity;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

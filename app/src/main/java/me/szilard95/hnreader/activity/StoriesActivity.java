@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,9 @@ import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import me.szilard95.hnreader.R;
+import me.szilard95.hnreader.model.Item;
 
 public class StoriesActivity extends ThemeActivity {
 

@@ -1,12 +1,14 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.network;
 
 import java.util.List;
 
+import me.szilard95.hnreader.model.Item;
+import me.szilard95.hnreader.model.User;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
-interface HnApi {
+public interface HnApi {
     @GET("/v0/item/{item}.json")
     Call<Item> getItem(@Path("item") long id);
 

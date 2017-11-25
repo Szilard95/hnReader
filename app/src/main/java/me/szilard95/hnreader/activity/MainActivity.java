@@ -1,4 +1,4 @@
-package me.szilard95.hnreader;
+package me.szilard95.hnreader.activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -20,6 +20,13 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.szilard95.hnreader.R;
+import me.szilard95.hnreader.adapter.ItemAdapter;
+import me.szilard95.hnreader.model.Item;
+import me.szilard95.hnreader.network.CallStatus;
+import me.szilard95.hnreader.network.HnApi;
+import me.szilard95.hnreader.network.NetworkManager;
+import me.szilard95.hnreader.network.NetworkingActivity;
 import retrofit2.Call;
 
 public class MainActivity extends ThemeActivity implements NavigationView.OnNavigationItemSelectedListener, NetworkingActivity {
