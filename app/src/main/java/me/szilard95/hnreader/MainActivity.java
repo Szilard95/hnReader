@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,6 +132,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
+            cancelLoading();
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         }
 
@@ -141,7 +141,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        if (storyLoading != null) storyLoading.cancel(true);
+        cancelLoading();
         int id = item.getItemId();
         shouldSave = false;
         if (id == R.id.nav_top) {
@@ -175,10 +175,14 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         return true;
     }
 
+    public void cancelLoading() {
+        if (storyLoading != null) storyLoading.cancel(true);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        if (storyLoading != null) storyLoading.cancel(true);
+        cancelLoading();
     }
 
     private class RequestStories extends AsyncTask<Call<List<Long>>, Void, CallStatus> {
@@ -220,14 +224,14 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
                 int numToFetch = Math.min(currentStories.size() - listSize, MIN_TO_FETCH);
                 if (numToFetch <= 0) return CallStatus.END;
                 for (int i = listSize; i < listSize + numToFetch; i++) {
-                    Item item = api.getItem(currentStories.get(i)).execute().body();
                     if (isCancelled()) return CallStatus.CANCELLED;
+                    Item item = api.getItem(currentStories.get(i)).execute().body();
                     itemList.add(item);
                     publishProgress();
                     if (shouldSave) item.save();
                 }
                 return CallStatus.OK;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 return CallStatus.ERROR;
             }
         }

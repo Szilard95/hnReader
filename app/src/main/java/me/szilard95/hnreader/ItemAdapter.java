@@ -56,6 +56,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         viewHolder.btnComments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((MainActivity) context).cancelLoading();
                 Intent i = new Intent(context, CommentsActivity.class);
                 i.putExtra("item", item);
                 context.startActivity(i);
@@ -68,6 +69,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
                 if (item.getUrl() == null || item.getUrl().equals("")) return; //TODO
 
+                ((MainActivity) context).cancelLoading();
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(item.getUrl()));
                 context.startActivity(i);
@@ -81,11 +83,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
 
 
-    public void addItem(Item item) {
-        itemList.add(item);
-//        item.save();
-        notifyDataSetChanged();
-    }
+//    public void addItem(Item item) {
+//        itemList.add(item);
+////        item.save();
+//        notifyDataSetChanged();
+//    }
 
     public void clear() {
         Item.deleteAll(Item.class);
