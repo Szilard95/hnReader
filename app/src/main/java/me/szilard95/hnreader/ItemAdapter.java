@@ -66,13 +66,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 Item item = itemList.get(position);
-
-                if (item.getUrl() == null || item.getUrl().equals("")) return; //TODO
-
                 ((MainActivity) context).cancelLoading();
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(item.getUrl()));
-                context.startActivity(i);
+
+                if (item.getUrl() == null || item.getUrl().equals("")) {
+                    Intent i = new Intent(context, StoriesActivity.class);
+                    i.putExtra("item", item);
+                    context.startActivity(i);
+                } else {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(item.getUrl()));
+                    context.startActivity(i);
+                }
             }
         });
     }

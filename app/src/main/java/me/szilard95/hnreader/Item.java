@@ -26,7 +26,7 @@ public class Item extends SugarRecord<Item> implements Serializable {
     private String text;
 
     public String getText() {
-        return text == null ? "" : text;
+        return text == null ? "[no text for this story]" : text;
     }
 
     public void setText(String text) {

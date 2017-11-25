@@ -60,13 +60,12 @@ public class CommentsActivity extends ThemeActivity {
                 R.id.recyclerViewComments);
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewComments.setAdapter(commentAdapter);
+        Toast.makeText(this, "Loading...", Toast.LENGTH_LONG).show();
         api.getItem(item.getHnId()).enqueue(new Callback<Item>() {
             @Override
             public void onResponse(Call<Item> call, Response<Item> response) {
                 Item item = response.body();
-                Log.d("KIDS", item.getKids().toString());
                 loadCommments = new RequestComments().execute(item.getKids());
-
             }
 
             @Override
