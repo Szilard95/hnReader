@@ -3,6 +3,7 @@
     package="me.szilard95.hnreader">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name="com.orm.SugarApp"
         android:allowBackup="true"
@@ -11,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="DATABASE"
             android:value="sugar_items.db" />
@@ -55,6 +55,15 @@
             android:name=".StoriesActivity"
             android:label="@string/title_activity_stories"
             android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="me.szilard95.hnreader.MainActivity" />
+        </activity>
+        <activity
+            android:name=".SavesActivity"
+            android:label="@string/title_activity_saves"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="me.szilard95.hnreader.MainActivity" />

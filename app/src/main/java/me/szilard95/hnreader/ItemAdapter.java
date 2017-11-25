@@ -47,8 +47,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             domain = "";
         }
         viewHolder.tvDomain.setText(domain);
-        viewHolder.tvScore.setText(item.getScore() + "p");
-        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
+        viewHolder.tvScore.setText(item.getScore() + context.getString(R.string.point));
+        viewHolder.tvDate.setText((new SimpleDateFormat(Utils.DATE_TIME_PATTERN).format(new Date(Long.parseLong(item.getTime()) * 1000))));
         viewHolder.tvNum.setText(String.valueOf(position + 1));
         viewHolder.tvComments.setText(item.getDescendants());
 
@@ -56,9 +56,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         viewHolder.btnComments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) context).cancelLoading();
+                ((NetworkingActivity) context).cancelLoading();
                 Intent i = new Intent(context, CommentsActivity.class);
-                i.putExtra("item", item);
+                i.putExtra(Item.INTENT_ID, item);
                 context.startActivity(i);
             }
         });
@@ -66,11 +66,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 Item item = itemList.get(position);
-                ((MainActivity) context).cancelLoading();
+                ((NetworkingActivity) context).cancelLoading();
 
                 if (item.getUrl() == null || item.getUrl().equals("")) {
                     Intent i = new Intent(context, StoriesActivity.class);
-                    i.putExtra("item", item);
+                    i.putExtra(Item.INTENT_ID, item);
                     context.startActivity(i);
                 } else {
                     Intent i = new Intent(Intent.ACTION_VIEW);
@@ -94,9 +94,31 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 //    }
 
     public void clear() {
-        Item.deleteAll(Item.class);
         itemList.clear();
         notifyDataSetChanged();
+    }
+
+    public void saveItem(int adapterPosition) {
+        Item i = itemList.get(adapterPosition);
+        List<Item> items = Item.find(Item.class, "hn_Id = ?", i.getHnId().toString());
+        if (items.size() > 0) {
+            Item existing = items.get(0);
+            existing.delete();
+        }
+        i.save();
+        notifyItemChanged(adapterPosition);
+    }
+
+    public void deleteSave(int adapterPosition) {
+        Item i = itemList.get(adapterPosition);
+        i.delete();
+        itemList.remove(i);
+        notifyItemRemoved(adapterPosition);
+    }
+
+    public void clearSaves() {
+        Item.deleteAll(Item.class);
+        clear();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

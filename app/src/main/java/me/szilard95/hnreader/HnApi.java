@@ -10,8 +10,8 @@ interface HnApi {
     @GET("/v0/item/{item}.json")
     Call<Item> getItem(@Path("item") long id);
 
-    @GET("/v0/item/{user}.json")
-    Call<Item> getUser(@Path("user") String id);
+    @GET("/v0/user/{user}.json")
+    Call<User> getUser(@Path("user") String id);
 
     @GET("/v0/maxitem.json")
     Call<Long> getMaxItem();

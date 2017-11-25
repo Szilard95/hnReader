@@ -1,24 +1,5 @@
 package me.szilard95.hnreader;
 
-/**
- * Created by szilard95 on 11/24/17.
- */
-
 enum CallStatus {
-    OK {
-        @Override
-        public String toString() {
-            return "Updated";
-        }
-    }, END {
-        @Override
-        public String toString() {
-            return "End of HN :(";
-        }
-    }, CANCELLED, ERROR {
-        @Override
-        public String toString() {
-            return "Error while updating";
-        }
-    }
+    OK, END, CANCELLED, NO_COMMENTS, ERROR
 }

@@ -1,13 +1,12 @@
 package me.szilard95.hnreader;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,16 +21,26 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CommentsActivity extends ThemeActivity {
+public class CommentsActivity extends ThemeActivity implements NetworkingActivity {
     private List<Item> commentList = new ArrayList<Item>();
+    private Item hnItem;
     private HnApi api;
     private CommentAdapter commentAdapter;
     private AsyncTask<List<Long>, Void, CallStatus> loadCommments;
+    private TextView tvNoComments;
+
+    public HnApi getApi() {
+        return api;
+    }
+
+    public void cancelLoading() {
+        if (loadCommments != null) loadCommments.cancel(true);
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (loadCommments != null) loadCommments.cancel(true);
+        cancelLoading();
     }
 
     @Override
@@ -45,13 +54,14 @@ public class CommentsActivity extends ThemeActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (hnItem.getKids() == null) return;
+                cancelLoading();
+                loadCommments = new RequestComments().execute(hnItem.getKids());
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Item item = (Item) getIntent().getSerializableExtra("item");
+        hnItem = (Item) getIntent().getSerializableExtra(Item.INTENT_ID);
 
 
         api = NetworkManager.getInstance().getApi();
@@ -60,21 +70,22 @@ public class CommentsActivity extends ThemeActivity {
                 R.id.recyclerViewComments);
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewComments.setAdapter(commentAdapter);
-        Toast.makeText(this, "Loading...", Toast.LENGTH_LONG).show();
-        api.getItem(item.getHnId()).enqueue(new Callback<Item>() {
+        Toast.makeText(this, R.string.loading, Toast.LENGTH_SHORT).show();
+        api.getItem(hnItem.getHnId()).enqueue(new Callback<Item>() {
             @Override
             public void onResponse(Call<Item> call, Response<Item> response) {
-                Item item = response.body();
-                loadCommments = new RequestComments().execute(item.getKids());
+                hnItem = response.body();
+                loadCommments = new RequestComments().execute(hnItem.getKids());
             }
 
             @Override
             public void onFailure(Call<Item> call, Throwable t) {
-
+                Toast.makeText(CommentsActivity.this, R.string.error_loading, Toast.LENGTH_SHORT).show();
             }
         });
 
-        ((TextView) findViewById(R.id.comments_item_title)).setText(item.getTitle());
+        ((TextView) findViewById(R.id.comments_item_title)).setText(hnItem.getTitle());
+        tvNoComments = findViewById(R.id.comments_empty);
     }
 
 
@@ -94,7 +105,11 @@ public class CommentsActivity extends ThemeActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_share) {
-            return true;
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, hnItem.getTitle() + getString(R.string.hn_item_url) + hnItem.getHnId());
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -102,9 +117,19 @@ public class CommentsActivity extends ThemeActivity {
 
     private class RequestComments extends AsyncTask<List<Long>, Void, CallStatus> {
         @Override
+        protected void onPreExecute() {
+            commentAdapter.clear();
+        }
+
+        @Override
         protected void onPostExecute(CallStatus s) {
             commentAdapter.notifyDataSetChanged();
-            Toast.makeText(CommentsActivity.this, s.toString(), Toast.LENGTH_SHORT).show();
+            if (s == CallStatus.NO_COMMENTS)
+                tvNoComments.setVisibility(View.VISIBLE);
+            else {
+                tvNoComments.setVisibility(View.GONE);
+                Toast.makeText(CommentsActivity.this, s.toString(), Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
@@ -114,6 +139,8 @@ public class CommentsActivity extends ThemeActivity {
 
         private CallStatus retrofit(List<Long> kids, int level) {
             try {
+                if (isCancelled()) return CallStatus.CANCELLED;
+                if (kids == null) return CallStatus.NO_COMMENTS;
                 for (Long kid : kids) {
                     Item i = api.getItem(kid).execute().body();
                     i.setLevel(level);
@@ -135,7 +162,7 @@ public class CommentsActivity extends ThemeActivity {
 
         @Override
         protected void onCancelled(CallStatus callStatus) {
-            Log.d("ASYNCTASK", callStatus.toString());
+            commentAdapter.clear();
         }
     }
 }

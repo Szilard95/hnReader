@@ -2,13 +2,10 @@ package me.szilard95.hnreader;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 public class StoriesActivity extends ThemeActivity {
@@ -21,20 +18,11 @@ public class StoriesActivity extends ThemeActivity {
         setContentView(R.layout.activity_stories);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        hnItem = (Item) getIntent().getSerializableExtra("item");
+        hnItem = (Item) getIntent().getSerializableExtra(Item.INTENT_ID);
         ((TextView) findViewById(R.id.stories_item_title)).setText(hnItem.getTitle());
-        ((TextView) findViewById(R.id.story_body)).setText(Html.fromHtml(hnItem.getText()));
+        ((TextView) findViewById(R.id.story_body)).setText(hnItem.getText().equals("") ? getString(R.string.no_content) : Html.fromHtml(hnItem.getText()));
     }
 
     @Override
@@ -60,7 +48,7 @@ public class StoriesActivity extends ThemeActivity {
             startActivity(sendIntent);
         } else if (id == R.id.action_comments) {
             Intent i = new Intent(StoriesActivity.this, CommentsActivity.class);
-            i.putExtra("item", hnItem);
+            i.putExtra(Item.INTENT_ID, hnItem);
             startActivity(i);
         }
 

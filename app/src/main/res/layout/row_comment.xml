@@ -19,13 +19,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="@dimen/padding_date"
-            android:text="2017-11-11" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/comment_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="UserName" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
@@ -33,6 +33,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="all"
-        android:linksClickable="true"
-        android:text="Comment Text Lorem Ipsum Dolor Sit Amet" />
+        android:linksClickable="true" />
 </LinearLayout>

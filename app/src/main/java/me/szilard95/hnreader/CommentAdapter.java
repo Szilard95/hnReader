@@ -1,6 +1,8 @@
 package me.szilard95.hnreader;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -14,8 +16,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
+    public static final int MAX_USER_DESCRIPTION_LINES = 15;
     private Context context;
     private List<Item> commentList;
 
@@ -37,19 +44,44 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         viewHolder.tvUser.setText(item.getBy());
 
         if (item.getDeleted())
-            viewHolder.tvBody.setText("[deleted]");
+            viewHolder.tvBody.setText(R.string.deleted);
         else
-            viewHolder.tvBody.setText(Html.fromHtml(item.getText()));
+            viewHolder.tvBody.setText(Utils.trim(Html.fromHtml(item.getText())));
 
         ViewGroup.MarginLayoutParams m = (ViewGroup.MarginLayoutParams) viewHolder.llComment.getLayoutParams();
         m.leftMargin = (int) Math.floor(item.getLevel() * 10 * context.getResources().getDisplayMetrics().density);
 
-        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
-
+        viewHolder.tvDate.setText((new SimpleDateFormat(Utils.DATE_TIME_PATTERN).format(new Date(Long.parseLong(item.getTime()) * 1000))));
         viewHolder.llCommentHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(viewHolder.llComment, "Test", Snackbar.LENGTH_INDEFINITE).show();
+                Snackbar.make(viewHolder.llComment, R.string.loading, Snackbar.LENGTH_INDEFINITE).show();
+
+                ((CommentsActivity) context).getApi().getUser(item.getBy()).enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        final User u = response.body();
+                        CharSequence msg;
+                        msg = Utils.trim(Html.fromHtml("<b>" + u.getId() + "</b> (" + u.getKarma() + ")<br>" + u.getAbout()));
+                        Snackbar snackbar = Snackbar.make(viewHolder.llComment, msg, Snackbar.LENGTH_INDEFINITE);
+                        TextView textView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+                        textView.setMaxLines(MAX_USER_DESCRIPTION_LINES);
+                        snackbar.setAction(R.string.profile, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent i = new Intent(Intent.ACTION_VIEW);
+                                i.setData(Uri.parse("https://news.ycombinator.com/user?id=" + u.getId()));
+                                context.startActivity(i);
+                            }
+                        });
+                        snackbar.show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        Snackbar.make(viewHolder.llComment, R.string.error_user, Snackbar.LENGTH_INDEFINITE).show();
+                    }
+                });
             }
         });
     }
@@ -57,6 +89,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     @Override
     public int getItemCount() {
         return commentList.size();
+    }
+
+    public void clear() {
+        commentList.clear();
+        notifyDataSetChanged();
     }
 
 

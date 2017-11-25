@@ -9,6 +9,9 @@ import java.util.List;
 
 public class Item extends SugarRecord<Item> implements Serializable {
     @Ignore
+    public static final String INTENT_ID = "item";
+
+    @Ignore
     private int level = 0;
     @SerializedName("id")
     private Long hnId;
@@ -26,7 +29,7 @@ public class Item extends SugarRecord<Item> implements Serializable {
     private String text;
 
     public String getText() {
-        return text == null ? "[no text for this story]" : text;
+        return text == null ? "" : text;
     }
 
     public void setText(String text) {

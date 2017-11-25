@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,17 +22,16 @@ import java.util.List;
 
 import retrofit2.Call;
 
-public class MainActivity extends ThemeActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends ThemeActivity implements NavigationView.OnNavigationItemSelectedListener, NetworkingActivity {
 
     public static final int MIN_TO_FETCH = 15;
-    static private List<Long> currentStories;
+    private static List<Long> currentStories;
+    private static List<Item> itemList;
     boolean updating = false;
-    private List<Item> itemList;
     private HnApi api;
     private ItemAdapter itemAdapter;
     private Call currentCall;
     private boolean endReached;
-    private transient boolean shouldSave;
     private AsyncTask storyLoading;
 
     @Override
@@ -40,8 +40,9 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
         currentStories = new ArrayList<>();
         itemList = new ArrayList<>();
-        shouldSave = true;
+        itemAdapter = new ItemAdapter(itemList, this);
         endReached = false;
+        api = NetworkManager.getInstance().getApi();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -56,7 +57,6 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
                 itemAdapter.clear();
                 currentStories.clear();
                 endReached = false;
-                Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
                 storyLoading = new RequestStories().execute(currentCall);
             }
         });
@@ -66,15 +66,9 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        api = NetworkManager.getInstance().getApi();
-
-        itemList = Item.listAll(Item.class);
-
-        itemAdapter = new ItemAdapter(itemList, this);
         RecyclerView recyclerViewItems = findViewById(
                 R.id.recyclerViewItems);
         recyclerViewItems.setLayoutManager(new LinearLayoutManager(this));
@@ -84,7 +78,6 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (!recyclerView.canScrollVertically(1) && recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE && !updating && !endReached) {
                     storyLoading = new RequestStories().execute(currentCall);
-                    Toast.makeText(MainActivity.this, "Loading more...", Toast.LENGTH_SHORT).show();
                 }
                 super.onScrollStateChanged(recyclerView, newState);
             }
@@ -96,11 +89,27 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
             }
         });
 
-        currentCall = api.getTopStories();
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return makeMovementFlags(0, ItemTouchHelper.START | ItemTouchHelper.END);
+            }
 
-        if (itemList.size() < MIN_TO_FETCH) {
-            storyLoading = new RequestStories().execute(currentCall);
-        }
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                itemAdapter.saveItem(viewHolder.getAdapterPosition());
+                Toast.makeText(MainActivity.this, R.string.saved, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        touchHelper.attachToRecyclerView(recyclerViewItems);
+
+        currentCall = api.getTopStories();
     }
 
     @Override
@@ -142,10 +151,9 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         cancelLoading();
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         int id = item.getItemId();
-        shouldSave = false;
         if (id == R.id.nav_top) {
-            shouldSave = true;
             currentCall = api.getTopStories();
             getSupportActionBar().setTitle(R.string.top_stories);
         } else if (id == R.id.nav_new) {
@@ -163,14 +171,17 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         } else if (id == R.id.nav_jobs) {
             currentCall = api.getJobStories();
             getSupportActionBar().setTitle(R.string.jobs);
+        } else if (id == R.id.nav_saves) {
+            drawer.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(MainActivity.this, SavesActivity.class));
+            return true;
         }
         itemAdapter.clear();
         currentStories.clear();
         endReached = false;
-        Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
+
         storyLoading = new RequestStories().execute(currentCall);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -187,9 +198,15 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
     private class RequestStories extends AsyncTask<Call<List<Long>>, Void, CallStatus> {
         @Override
+        protected void onPreExecute() {
+            updating = true;
+            Toast.makeText(MainActivity.this, R.string.loading, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
         protected void onPostExecute(CallStatus s) {
-            itemAdapter.notifyDataSetChanged();
             updating = false;
+            itemAdapter.notifyDataSetChanged();
             if (s == CallStatus.END)
                 endReached = true;
             Toast.makeText(MainActivity.this, s.toString(), Toast.LENGTH_SHORT).show();
@@ -197,7 +214,6 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
         @Override
         protected CallStatus doInBackground(Call<List<Long>>[] calls) {
-            updating = true;
             return retrofit(calls[0]);
         }
 
@@ -210,7 +226,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         protected void onCancelled(CallStatus callStatus) {
             updating = false;
             currentStories.clear();
-            itemAdapter.clear();
+            //itemAdapter.clear();
             endReached = false;
         }
 
@@ -220,7 +236,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
                     currentStories = call.clone().execute().body();
                 if (isCancelled()) return CallStatus.CANCELLED;
                 int listSize = itemList.size();
-//            Log.d("SIZE", "listSize: " + listSize + " topSize: " + currentStories.size());
+
                 int numToFetch = Math.min(currentStories.size() - listSize, MIN_TO_FETCH);
                 if (numToFetch <= 0) return CallStatus.END;
                 for (int i = listSize; i < listSize + numToFetch; i++) {
@@ -228,7 +244,6 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
                     Item item = api.getItem(currentStories.get(i)).execute().body();
                     itemList.add(item);
                     publishProgress();
-                    if (shouldSave) item.save();
                 }
                 return CallStatus.OK;
             } catch (Exception e) {

@@ -24,7 +24,9 @@
         <TextView
             android:id="@+id/story_body"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:autoLink="all"
+            android:linksClickable="true" />
     </ScrollView>
 </LinearLayout>
 
