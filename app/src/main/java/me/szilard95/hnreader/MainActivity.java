@@ -25,19 +25,25 @@ import retrofit2.Call;
 public class MainActivity extends ThemeActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int MIN_TO_FETCH = 15;
-    static private List<Long> currentStories = new ArrayList<>();
+    static private List<Long> currentStories;
     boolean updating = false;
-    private List<Item> itemList = new ArrayList<Item>();
+    private List<Item> itemList;
     private HnApi api;
     private ItemAdapter itemAdapter;
     private Call currentCall;
-    private boolean endReached = false;
-    private transient boolean shouldSave = true;
+    private boolean endReached;
+    private transient boolean shouldSave;
     private AsyncTask storyLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        currentStories = new ArrayList<>();
+        itemList = new ArrayList<>();
+        shouldSave = true;
+        endReached = false;
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.top_stories);
@@ -199,22 +205,26 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         @Override
         protected void onCancelled(CallStatus callStatus) {
             updating = false;
+            currentStories.clear();
+            itemAdapter.clear();
+            endReached = false;
         }
 
         private CallStatus retrofit(Call<List<Long>> call) {
             try {
                 if (currentStories.size() == 0)
                     currentStories = call.clone().execute().body();
+                if (isCancelled()) return CallStatus.CANCELLED;
                 int listSize = itemList.size();
 //            Log.d("SIZE", "listSize: " + listSize + " topSize: " + currentStories.size());
                 int numToFetch = Math.min(currentStories.size() - listSize, MIN_TO_FETCH);
                 if (numToFetch <= 0) return CallStatus.END;
                 for (int i = listSize; i < listSize + numToFetch; i++) {
                     Item item = api.getItem(currentStories.get(i)).execute().body();
+                    if (isCancelled()) return CallStatus.CANCELLED;
                     itemList.add(item);
                     publishProgress();
                     if (shouldSave) item.save();
-                    if (isCancelled()) return CallStatus.CANCELLED;
                 }
                 return CallStatus.OK;
             } catch (IOException e) {
