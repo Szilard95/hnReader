@@ -2,28 +2,42 @@ package me.szilard95.hnreader;
 
 import com.google.gson.annotations.SerializedName;
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class Item extends SugarRecord<Item> implements Serializable {
+    @Ignore
+    private int level = 0;
     @SerializedName("id")
-    private String hnId;
+    private Long hnId;
     private String title;
     private String type;
     private String parent;
-    private transient List<String> kids;
+    @Ignore
+    private List<Long> kids;
     private String time;
     private String url;
     private String score;
     private String descendants;
     private String by;
+    private boolean deleted;
+    private String text;
 
-    public String getHnId() {
+    public String getText() {
+        return text == null ? "" : text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Long getHnId() {
         return hnId;
     }
 
-    public void setId(String id) {
+    public void setHnId(Long id) {
         this.hnId = id;
     }
 
@@ -51,11 +65,11 @@ public class Item extends SugarRecord<Item> implements Serializable {
         this.parent = parent;
     }
 
-    public List<String> getKids() {
+    public List<Long> getKids() {
         return kids;
     }
 
-    public void setKids(List<String> kids) {
+    public void setKids(List<Long> kids) {
         this.kids = kids;
     }
 
@@ -97,5 +111,21 @@ public class Item extends SugarRecord<Item> implements Serializable {
 
     public void setBy(String by) {
         this.by = by;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 }

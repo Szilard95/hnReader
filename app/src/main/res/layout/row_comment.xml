@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/comment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    android:orientation="vertical"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp">
+
+    <LinearLayout
+        android:id="@+id/comment_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp">
+
+        <TextView
+            android:id="@+id/comment_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="@dimen/padding_date"
+            android:text="2017-11-11" />
+
+        <TextView
+            android:id="@+id/comment_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UserName" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/comment_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="all"
+        android:linksClickable="true"
+        android:text="Comment Text Lorem Ipsum Dolor Sit Amet" />
+</LinearLayout>

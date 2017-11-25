@@ -17,38 +17,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.orm.SugarRecord;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Path;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-    static List<Long> top = new ArrayList<>();
-    Retrofit retrofit;
-    List<Item> itemList = new ArrayList<Item>();
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final int MIN_TO_FETCH = 15;
+    static private List<Long> currentStories = new ArrayList<>();
     boolean updating = false;
+    private List<Item> itemList = new ArrayList<Item>();
     private HnApi api;
     private ItemAdapter itemAdapter;
     private Call currentCall;
     private boolean endReached = false;
     private transient boolean shouldSave = true;
+    private AsyncTask storyLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.top_stories);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -57,10 +50,10 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 if (updating) return;
                 itemAdapter.clear();
-                top.clear();
+                currentStories.clear();
                 endReached = false;
                 Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
-                new test().execute(currentCall);
+                storyLoading = new RequestStories().execute(currentCall);
             }
         });
 
@@ -73,18 +66,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // TODO
-        final SugarExclusionStrategy strategy = new SugarExclusionStrategy(SugarRecord.class);
-        final Gson gson = new GsonBuilder()
-                .addDeserializationExclusionStrategy(strategy)
-                .addSerializationExclusionStrategy(strategy)
-                .create();
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://hacker-news.firebaseio.com")
-                .client(new OkHttpClient.Builder().build())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-        api = retrofit.create(HnApi.class);
+        api = NetworkManager.getInstance().getApi();
 
         itemList = Item.listAll(Item.class);
 
@@ -97,7 +79,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (!recyclerView.canScrollVertically(1) && recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE && !updating && !endReached) {
-                    new test().execute(currentCall);
+                    storyLoading = new RequestStories().execute(currentCall);
                     Toast.makeText(MainActivity.this, "Loading more...", Toast.LENGTH_SHORT).show();
                 }
                 super.onScrollStateChanged(recyclerView, newState);
@@ -112,8 +94,8 @@ public class MainActivity extends AppCompatActivity
 
         currentCall = api.getTopStories();
 
-        if (itemList.size() == 0) {
-            new test().execute(currentCall);
+        if (itemList.size() < MIN_TO_FETCH) {
+            storyLoading = new RequestStories().execute(currentCall);
         }
     }
 
@@ -124,6 +106,14 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (itemList.size() < MIN_TO_FETCH) {
+            storyLoading = new RequestStories().execute(currentCall);
         }
     }
 
@@ -146,83 +136,47 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        if (storyLoading != null) storyLoading.cancel(true);
         int id = item.getItemId();
         shouldSave = false;
         if (id == R.id.nav_top) {
             shouldSave = true;
             currentCall = api.getTopStories();
+            getSupportActionBar().setTitle(R.string.top_stories);
         } else if (id == R.id.nav_new) {
             currentCall = api.getNewStories();
+            getSupportActionBar().setTitle(R.string.new_stories);
         } else if (id == R.id.nav_best) {
             currentCall = api.getBestStories();
+            getSupportActionBar().setTitle(R.string.best_stories);
         } else if (id == R.id.nav_ask) {
             currentCall = api.getAskStories();
+            getSupportActionBar().setTitle(R.string.ask_hn);
         } else if (id == R.id.nav_show) {
             currentCall = api.getShowStories();
+            getSupportActionBar().setTitle(R.string.show_hn);
         } else if (id == R.id.nav_jobs) {
             currentCall = api.getJobStories();
+            getSupportActionBar().setTitle(R.string.jobs);
         }
         itemAdapter.clear();
-        top.clear();
+        currentStories.clear();
         endReached = false;
         Toast.makeText(MainActivity.this, "Updating", Toast.LENGTH_SHORT).show();
-        new test().execute(currentCall);
+        storyLoading = new RequestStories().execute(currentCall);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    // TODO: HIGHLY EXPERIMENTAL
 
-    private CallStatus retrofit(Call<List<Long>> call) {
-        try {
-            if (top.size() == 0)
-                top = call.clone().execute().body();
-            int listSize = itemList.size();
-//            Log.d("SIZE", "listSize: " + listSize + " topSize: " + top.size());
-            int numToFetch = Math.min(top.size() - listSize, 10);
-            if (numToFetch <= 0) return CallStatus.END;
-            for (int i = listSize; i < listSize + numToFetch; i++) {
-                Item item = api.getItem(top.get(i)).execute().body();
-                itemList.add(item);
-                if (shouldSave) item.save();
-            }
-            return CallStatus.OK;
-        } catch (IOException e) {
-            return CallStatus.ERROR;
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (storyLoading != null) storyLoading.cancel(true);
     }
 
-    interface HnApi {
-        @GET("/v0/item/{item}.json")
-        Call<Item> getItem(@Path("item") long id);
-
-        @GET("/v0/item/{user}.json")
-        Call<Item> getUser(@Path("user") String id);
-
-        @GET("/v0/maxitem.json")
-        Call<Long> getMaxItem();
-
-        @GET("/v0/topstories.json")
-        Call<List<Long>> getTopStories();
-
-        @GET("/v0/newstories.json")
-        Call<List<Long>> getNewStories();
-
-        @GET("/v0/beststories.json")
-        Call<List<Long>> getBestStories();
-
-        @GET("/v0/askstories.json")
-        Call<List<Long>> getAskStories();
-
-        @GET("/v0/showstories.json")
-        Call<List<Long>> getShowStories();
-
-        @GET("/v0/jobstories.json")
-        Call<List<Long>> getJobStories();
-    }
-
-    private class test extends AsyncTask<Call<List<Long>>, Void, CallStatus> {
+    private class RequestStories extends AsyncTask<Call<List<Long>>, Void, CallStatus> {
         @Override
         protected void onPostExecute(CallStatus s) {
             itemAdapter.notifyDataSetChanged();
@@ -236,6 +190,37 @@ public class MainActivity extends AppCompatActivity
         protected CallStatus doInBackground(Call<List<Long>>[] calls) {
             updating = true;
             return retrofit(calls[0]);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            itemAdapter.notifyItemInserted(itemList.size() - 1);
+        }
+
+        @Override
+        protected void onCancelled(CallStatus callStatus) {
+            updating = false;
+        }
+
+        private CallStatus retrofit(Call<List<Long>> call) {
+            try {
+                if (currentStories.size() == 0)
+                    currentStories = call.clone().execute().body();
+                int listSize = itemList.size();
+//            Log.d("SIZE", "listSize: " + listSize + " topSize: " + currentStories.size());
+                int numToFetch = Math.min(currentStories.size() - listSize, MIN_TO_FETCH);
+                if (numToFetch <= 0) return CallStatus.END;
+                for (int i = listSize; i < listSize + numToFetch; i++) {
+                    Item item = api.getItem(currentStories.get(i)).execute().body();
+                    itemList.add(item);
+                    publishProgress();
+                    if (shouldSave) item.save();
+                    if (isCancelled()) return CallStatus.CANCELLED;
+                }
+                return CallStatus.OK;
+            } catch (IOException e) {
+                return CallStatus.ERROR;
+            }
         }
     }
 }

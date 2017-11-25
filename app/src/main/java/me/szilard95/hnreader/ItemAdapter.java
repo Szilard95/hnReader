@@ -36,7 +36,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
-        Item item = itemList.get(position);
+        final Item item = itemList.get(position);
         viewHolder.tvUser.setText(item.getBy());
         viewHolder.tvTitle.setText(item.getTitle());
         String domain = "";
@@ -48,7 +48,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         }
         viewHolder.tvDomain.setText(domain);
         viewHolder.tvScore.setText(item.getScore() + "p");
-        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-MM-dd hh:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
+        viewHolder.tvDate.setText((new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(Long.parseLong(item.getTime()) * 1000))));
         viewHolder.tvNum.setText(String.valueOf(position + 1));
         viewHolder.tvComments.setText(item.getDescendants());
 
@@ -56,7 +56,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         viewHolder.btnComments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                return;
+                Intent i = new Intent(context, CommentsActivity.class);
+                i.putExtra("item", item);
+                context.startActivity(i);
             }
         });
         viewHolder.llInner.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +88,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
 
     public void clear() {
-//        Item.deleteAll(Item.class);
+        Item.deleteAll(Item.class);
         itemList.clear();
         notifyDataSetChanged();
     }

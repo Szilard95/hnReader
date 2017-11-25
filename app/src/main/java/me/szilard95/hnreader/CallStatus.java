@@ -15,7 +15,7 @@ enum CallStatus {
         public String toString() {
             return "End of HN :(";
         }
-    }, ERROR {
+    }, CANCELLED, ERROR {
         @Override
         public String toString() {
             return "Error while updating";
