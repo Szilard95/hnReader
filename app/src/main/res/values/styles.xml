@@ -32,4 +32,19 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ItemHeader">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ItemDomain">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="ItemNum" parent="ItemHeader"></style>
+
+    <style name="ItemComments">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
 </resources>

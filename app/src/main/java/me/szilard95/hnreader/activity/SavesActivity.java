@@ -69,6 +69,8 @@ public class SavesActivity extends ThemeActivity implements NetworkingActivity {
 
         if (id == R.id.action_delete_saves) {
             itemAdapter.clearSaves();
+        } else if (id == android.R.id.home) {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

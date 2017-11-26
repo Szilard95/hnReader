@@ -155,7 +155,7 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
             sendIntent.putExtra(Intent.EXTRA_TEXT, hnItem.getTitle() + getString(R.string.hn_item_url) + hnItem.getHnId());
             sendIntent.setType("text/plain");
             startActivity(sendIntent);
-        } else if (id == android.R.id.home && showingCached) {
+        } else if (id == android.R.id.home) {
             finish();
         }
 

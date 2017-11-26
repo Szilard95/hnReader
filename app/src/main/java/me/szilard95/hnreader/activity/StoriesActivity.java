@@ -53,6 +53,8 @@ public class StoriesActivity extends ThemeActivity {
             Intent i = new Intent(StoriesActivity.this, CommentsActivity.class);
             i.putExtra(Item.INTENT_ID, hnItem);
             startActivity(i);
+        } else if (id == android.R.id.home) {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
