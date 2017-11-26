@@ -16,11 +16,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static me.szilard95.hnreader.adapters.CommentAdapter.MAX_USER_DESCRIPTION_LINES;
-
 public class UserClickListener implements View.OnClickListener {
-
-
+    private static final int MAX_USER_DESCRIPTION_LINES = 15;
     private View view;
     private Context context;
     private Item item;
@@ -59,7 +56,7 @@ public class UserClickListener implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(context.getString(R.string.hn_user_url) + userId));
+                i.setData(Uri.parse(NetworkManager.HN_USER_URL + userId));
                 context.startActivity(i);
             }
         });

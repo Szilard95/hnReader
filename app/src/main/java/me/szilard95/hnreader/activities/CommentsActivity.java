@@ -34,16 +34,15 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
     private Item hnItem;
     private HnApi api;
     private CommentAdapter commentAdapter;
-    private AsyncTask<List<Long>, Void, CallStatus> loadCommments;
+    private AsyncTask<List<Long>, Void, CallStatus> loadComments;
     private TextView tvNoComments;
-    private boolean showingCached = false;
 
     public HnApi getApi() {
         return api;
     }
 
     public void cancelLoading() {
-        if (loadCommments != null) loadCommments.cancel(true);
+        if (loadComments != null) loadComments.cancel(true);
     }
 
     @Override
@@ -65,7 +64,7 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
             public void onClick(View view) {
                 if (hnItem.getKids() == null) return;
                 cancelLoading();
-                loadCommments = new RequestComments().execute(hnItem.getKids());
+                loadComments = new RequestComments().execute(hnItem.getKids());
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -79,14 +78,13 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
                 R.id.recyclerViewComments);
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewComments.setAdapter(commentAdapter);
-        showingCached = hnItem.isCached();
         if (!hnItem.isCached()) {
             api.getItem(hnItem.getHnId()).enqueue(new Callback<Item>() {
                 @Override
                 public void onResponse(Call<Item> call, Response<Item> response) {
                     hnItem = response.body();
                     if (hnItem.getDescendants() > 0) {
-                        loadCommments = new RequestComments().execute(hnItem.getKids());
+                        loadComments = new RequestComments().execute(hnItem.getKids());
                         tvNoComments.setVisibility(View.GONE);
                     } else
                         tvNoComments.setVisibility(View.VISIBLE);
@@ -135,23 +133,18 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_comments, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_share) {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, hnItem.getTitle() + getString(R.string.hn_item_url) + hnItem.getHnId());
+            sendIntent.putExtra(Intent.EXTRA_TEXT, hnItem.getTitle() + " - " + NetworkManager.HN_ITEM_URL + hnItem.getHnId());
             sendIntent.setType("text/plain");
             startActivity(sendIntent);
         } else if (id == android.R.id.home) {

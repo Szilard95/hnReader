@@ -11,8 +11,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkManager {
 
+    public static final String HN_USER_URL = "https://news.ycombinator.com/user?id=";
+    public static final String HN_ITEM_URL = "https://news.ycombinator.com/item?id=";
     private static final String ENDPOINT_ADDRESS = "https://hacker-news.firebaseio.com/";
-
     private static NetworkManager instance;
     private HnApi api;
 

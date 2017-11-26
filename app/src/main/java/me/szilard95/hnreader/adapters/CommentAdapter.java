@@ -20,7 +20,6 @@ import me.szilard95.hnreader.models.Item;
 
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
-    public static final int MAX_USER_DESCRIPTION_LINES = 15;
     private Context context;
     private List<Item> commentList;
 
