@@ -17,13 +17,13 @@
             android:value="sugar_items.db" />
         <meta-data
             android:name="VERSION"
-            android:value="9" />
+            android:value="11" />
         <meta-data
             android:name="QUERY_LOG"
             android:value="true" />
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
-            android:value="me.szilard95.hnreader" />
+            android:value="me.szilard95.hnreader.model" />
 
         <activity
             android:name=".activity.MainActivity"
@@ -36,11 +36,7 @@
         </activity>
         <activity
             android:name=".activity.CommentsActivity"
-            android:label="@string/title_activity_comments"
-            android:parentActivityName=".activity.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="me.szilard95.hnreader.activity.MainActivity" />
+            android:label="@string/title_activity_comments">
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
@@ -62,8 +58,7 @@
         <activity
             android:name=".activity.SavesActivity"
             android:label="@string/title_activity_saves"
-            android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme">
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="me.szilard95.hnreader.activity.MainActivity" />

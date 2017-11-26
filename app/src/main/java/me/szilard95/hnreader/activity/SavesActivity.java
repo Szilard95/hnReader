@@ -13,8 +13,10 @@ import java.util.List;
 import me.szilard95.hnreader.R;
 import me.szilard95.hnreader.adapter.ItemAdapter;
 import me.szilard95.hnreader.model.Item;
+import me.szilard95.hnreader.network.HnApi;
+import me.szilard95.hnreader.network.NetworkingActivity;
 
-public class SavesActivity extends MainActivity {
+public class SavesActivity extends ThemeActivity implements NetworkingActivity {
 
     private ItemAdapter itemAdapter;
 
@@ -26,7 +28,10 @@ public class SavesActivity extends MainActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        List<Item> itemList = Item.listAll(Item.class);
+        List<Item> itemList = Item.find(Item.class, "type != 'comment'");
+        for (Item item : itemList) {
+            item.setCached(true);
+        }
         itemAdapter = new ItemAdapter(itemList, this);
         RecyclerView recyclerViewItems = findViewById(
                 R.id.recyclerViewItems);
@@ -72,5 +77,10 @@ public class SavesActivity extends MainActivity {
     @Override
     public void cancelLoading() {
         return;
+    }
+
+    @Override
+    public HnApi getApi() {
+        return null;
     }
 }

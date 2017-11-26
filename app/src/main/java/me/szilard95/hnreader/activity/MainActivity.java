@@ -32,9 +32,8 @@ import retrofit2.Call;
 public class MainActivity extends ThemeActivity implements NavigationView.OnNavigationItemSelectedListener, NetworkingActivity {
 
     public static final int MIN_TO_FETCH = 15;
-    private static List<Long> currentStories;
-    private static List<Item> itemList;
     boolean updating = false;
+    private List<Long> currentStories;
     private HnApi api;
     private ItemAdapter itemAdapter;
     private Call currentCall;
@@ -46,7 +45,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         super.onCreate(savedInstanceState);
 
         currentStories = new ArrayList<>();
-        itemList = new ArrayList<>();
+        List<Item> itemList = new ArrayList<>();
         itemAdapter = new ItemAdapter(itemList, this);
         endReached = false;
         api = NetworkManager.getInstance().getApi();
@@ -132,7 +131,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
     @Override
     protected void onResume() {
         super.onResume();
-        if (itemList.size() < MIN_TO_FETCH) {
+        if (itemAdapter.getItemCount() < MIN_TO_FETCH) {
             storyLoading = new RequestStories().execute(currentCall);
         }
     }
@@ -180,7 +179,8 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
             getSupportActionBar().setTitle(R.string.jobs);
         } else if (id == R.id.nav_saves) {
             drawer.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, SavesActivity.class));
+            Intent i = new Intent(MainActivity.this, SavesActivity.class);
+            startActivity(i);
             return true;
         }
         itemAdapter.clear();
@@ -195,6 +195,11 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
     public void cancelLoading() {
         if (storyLoading != null) storyLoading.cancel(true);
+    }
+
+    @Override
+    public HnApi getApi() {
+        return api;
     }
 
     @Override
@@ -226,7 +231,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
         @Override
         protected void onProgressUpdate(Void... values) {
-            itemAdapter.notifyItemInserted(itemList.size() - 1);
+            itemAdapter.notifyItemInserted(itemAdapter.getItemCount() - 1);
         }
 
         @Override
@@ -242,14 +247,14 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
                 if (currentStories.size() == 0)
                     currentStories = call.clone().execute().body();
                 if (isCancelled()) return CallStatus.CANCELLED;
-                int listSize = itemList.size();
+                int listSize = itemAdapter.getItemCount();
 
                 int numToFetch = Math.min(currentStories.size() - listSize, MIN_TO_FETCH);
                 if (numToFetch <= 0) return CallStatus.END;
                 for (int i = listSize; i < listSize + numToFetch; i++) {
                     if (isCancelled()) return CallStatus.CANCELLED;
                     Item item = api.getItem(currentStories.get(i)).execute().body();
-                    itemList.add(item);
+                    itemAdapter.add(item);
                     publishProgress();
                 }
                 return CallStatus.OK;

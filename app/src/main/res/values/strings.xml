@@ -19,7 +19,7 @@
     <string name="pref_header_display">Display</string>
     <string name="pref_title_theme">Enable dark theme</string>
     <string name="action_comments">Comments</string>
-    <string name="title_activity_saves">SavesActivity</string>
+    <string name="title_activity_saves">Saved Stories</string>
     <string name="action_delete_saves">Delete saves</string>
     <string name="no_comments">[no comments]</string>
     <string name="deleted">[deleted]</string>
@@ -30,5 +30,7 @@
     <string name="error_loading">Error loading</string>
     <string name="hn_item_url">- https://news.ycombinator.com/item?id=</string>
     <string name="point">p</string>
-    <string name="saved">Saved</string>
+    <string name="saved">Saving...</string>
+    <string name="comments_not_saved">Comments not yet fully saved</string>
+    <string name="reload">reload</string>
 </resources>

@@ -6,4 +6,6 @@ package me.szilard95.hnreader.network;
 
 public interface NetworkingActivity {
     void cancelLoading();
+
+    HnApi getApi();
 }

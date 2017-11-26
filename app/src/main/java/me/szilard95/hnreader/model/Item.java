@@ -5,12 +5,15 @@ import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Item extends SugarRecord<Item> implements Serializable {
     @Ignore
     public static final String INTENT_ID = "item";
-
+    @Ignore
+    private boolean isCached = false;
     @Ignore
     private int level = 0;
     @SerializedName("id")
@@ -18,15 +21,25 @@ public class Item extends SugarRecord<Item> implements Serializable {
     private String title;
     private String type;
     private String parent;
+    private long parentStory;
     @Ignore
     private List<Long> kids;
+    private String kidsAsString;
     private String time;
     private String url;
     private String score;
-    private String descendants;
+    private long descendants;
     private String by;
     private boolean deleted;
     private String text;
+
+    public boolean isCached() {
+        return isCached;
+    }
+
+    public void setCached(boolean cached) {
+        isCached = cached;
+    }
 
     public String getText() {
         return text == null ? "" : text;
@@ -69,7 +82,8 @@ public class Item extends SugarRecord<Item> implements Serializable {
     }
 
     public List<Long> getKids() {
-        return kids;
+        if (kids != null) return kids;
+        return getKidsAsList();
     }
 
     public void setKids(List<Long> kids) {
@@ -100,11 +114,11 @@ public class Item extends SugarRecord<Item> implements Serializable {
         this.score = score;
     }
 
-    public String getDescendants() {
+    public long getDescendants() {
         return descendants;
     }
 
-    public void setDescendants(String descendants) {
+    public void setDescendants(long descendants) {
         this.descendants = descendants;
     }
 
@@ -130,5 +144,32 @@ public class Item extends SugarRecord<Item> implements Serializable {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public void setKidsAsString() {
+        if (kids == null) return;
+        StringBuilder sb = new StringBuilder();
+        for (Long kid : kids) {
+            sb.append(kid);
+            sb.append(" ");
+        }
+        kidsAsString = sb.toString();
+    }
+
+    private List<Long> getKidsAsList() {
+        if (kidsAsString == null) return null;
+        Scanner s = new Scanner(kidsAsString);
+        List<Long> l = new ArrayList<>();
+        while (s.hasNextLong())
+            l.add(s.nextLong());
+        return l;
+    }
+
+    public long getParentStory() {
+        return parentStory;
+    }
+
+    public void setParentStory(long parentStory) {
+        this.parentStory = parentStory;
     }
 }
