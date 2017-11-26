@@ -33,4 +33,5 @@
     <string name="saved">Saving...</string>
     <string name="comments_not_saved">Comments not yet fully saved</string>
     <string name="reload">reload</string>
+    <string name="hn_user_url">https://news.ycombinator.com/user?id=</string>
 </resources>

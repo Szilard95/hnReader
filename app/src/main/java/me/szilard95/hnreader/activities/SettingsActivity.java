@@ -1,4 +1,4 @@
-package me.szilard95.hnreader.activity;
+package me.szilard95.hnreader.activities;
 
 import android.annotation.TargetApi;
 import android.content.Context;

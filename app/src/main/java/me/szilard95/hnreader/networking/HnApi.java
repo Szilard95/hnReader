@@ -1,9 +1,9 @@
-package me.szilard95.hnreader.network;
+package me.szilard95.hnreader.networking;
 
 import java.util.List;
 
-import me.szilard95.hnreader.model.Item;
-import me.szilard95.hnreader.model.User;
+import me.szilard95.hnreader.models.Item;
+import me.szilard95.hnreader.models.User;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;

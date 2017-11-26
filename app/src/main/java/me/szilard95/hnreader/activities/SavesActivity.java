@@ -1,4 +1,4 @@
-package me.szilard95.hnreader.activity;
+package me.szilard95.hnreader.activities;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,10 +11,10 @@ import android.view.MenuItem;
 import java.util.List;
 
 import me.szilard95.hnreader.R;
-import me.szilard95.hnreader.adapter.ItemAdapter;
-import me.szilard95.hnreader.model.Item;
-import me.szilard95.hnreader.network.HnApi;
-import me.szilard95.hnreader.network.NetworkingActivity;
+import me.szilard95.hnreader.adapters.ItemAdapter;
+import me.szilard95.hnreader.models.Item;
+import me.szilard95.hnreader.networking.HnApi;
+import me.szilard95.hnreader.networking.NetworkingActivity;
 
 public class SavesActivity extends ThemeActivity implements NetworkingActivity {
 

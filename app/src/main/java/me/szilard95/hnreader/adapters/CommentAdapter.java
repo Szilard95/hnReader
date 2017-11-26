@@ -1,9 +1,6 @@
-package me.szilard95.hnreader.adapter;
+package me.szilard95.hnreader.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -17,13 +14,9 @@ import java.util.Date;
 import java.util.List;
 
 import me.szilard95.hnreader.R;
-import me.szilard95.hnreader.Utils;
-import me.szilard95.hnreader.activity.CommentsActivity;
-import me.szilard95.hnreader.model.Item;
-import me.szilard95.hnreader.model.User;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import me.szilard95.hnreader.helpers.UserClickListener;
+import me.szilard95.hnreader.helpers.Utils;
+import me.szilard95.hnreader.models.Item;
 
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
@@ -57,38 +50,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         m.leftMargin = (int) Math.floor(item.getLevel() * 10 * context.getResources().getDisplayMetrics().density);
 
         viewHolder.tvDate.setText((new SimpleDateFormat(Utils.DATE_TIME_PATTERN).format(new Date(Long.parseLong(item.getTime()) * 1000))));
-        viewHolder.llCommentHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(viewHolder.llComment, R.string.loading, Snackbar.LENGTH_INDEFINITE).show();
-
-                ((CommentsActivity) context).getApi().getUser(item.getBy()).enqueue(new Callback<User>() {
-                    @Override
-                    public void onResponse(Call<User> call, Response<User> response) {
-                        final User u = response.body();
-                        CharSequence msg;
-                        msg = Utils.trim(Html.fromHtml("<b>" + u.getId() + "</b> (" + u.getKarma() + ")<br>" + u.getAbout()));
-                        Snackbar snackbar = Snackbar.make(viewHolder.llComment, msg, Snackbar.LENGTH_INDEFINITE);
-                        TextView textView = snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
-                        textView.setMaxLines(MAX_USER_DESCRIPTION_LINES);
-                        snackbar.setAction(R.string.profile, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent i = new Intent(Intent.ACTION_VIEW);
-                                i.setData(Uri.parse("https://news.ycombinator.com/user?id=" + u.getId()));
-                                context.startActivity(i);
-                            }
-                        });
-                        snackbar.show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<User> call, Throwable t) {
-                        Snackbar.make(viewHolder.llComment, R.string.error_user, Snackbar.LENGTH_INDEFINITE).show();
-                    }
-                });
-            }
-        });
+        viewHolder.llCommentHeader.setOnClickListener(new UserClickListener(context, viewHolder.llComment, item));
     }
 
     @Override

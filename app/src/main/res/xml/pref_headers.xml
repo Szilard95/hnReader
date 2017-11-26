@@ -3,7 +3,7 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="me.szilard95.hnreader.activity.SettingsActivity$DisplayPreferenceFragment"
+        android:fragment="me.szilard95.hnreader.activities.SettingsActivity$DisplayPreferenceFragment"
         android:icon="@drawable/ic_style_black_24dp"
         android:title="@string/pref_header_display" />
 

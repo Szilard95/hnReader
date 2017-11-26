@@ -1,10 +1,10 @@
-package me.szilard95.hnreader.network;
+package me.szilard95.hnreader.networking;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.orm.SugarRecord;
 
-import me.szilard95.hnreader.model.SugarExclusionStrategy;
+import me.szilard95.hnreader.helpers.SugarExclusionStrategy;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

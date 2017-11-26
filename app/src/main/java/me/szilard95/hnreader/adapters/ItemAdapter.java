@@ -1,4 +1,4 @@
-package me.szilard95.hnreader.adapter;
+package me.szilard95.hnreader.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,12 +20,13 @@ import java.util.Date;
 import java.util.List;
 
 import me.szilard95.hnreader.R;
-import me.szilard95.hnreader.Utils;
-import me.szilard95.hnreader.activity.CommentsActivity;
-import me.szilard95.hnreader.activity.StoriesActivity;
-import me.szilard95.hnreader.model.Item;
-import me.szilard95.hnreader.network.CallStatus;
-import me.szilard95.hnreader.network.NetworkingActivity;
+import me.szilard95.hnreader.activities.CommentsActivity;
+import me.szilard95.hnreader.activities.StoriesActivity;
+import me.szilard95.hnreader.helpers.UserClickListener;
+import me.szilard95.hnreader.helpers.Utils;
+import me.szilard95.hnreader.models.Item;
+import me.szilard95.hnreader.networking.CallStatus;
+import me.szilard95.hnreader.networking.NetworkingActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -66,6 +67,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         viewHolder.tvNum.setText(String.valueOf(position + 1));
         viewHolder.tvComments.setText(String.valueOf(item.getDescendants()));
 
+        viewHolder.tvUser.setOnClickListener(new UserClickListener(context, viewHolder.tvUser, item));
 
         viewHolder.btnComments.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,13 +101,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     public int getItemCount() {
         return itemList.size();
     }
-
-
-//    public void addItem(Item item) {
-//        itemList.add(item);
-////        item.save();
-//        notifyDataSetChanged();
-//    }
 
     public void clear() {
         itemList.clear();

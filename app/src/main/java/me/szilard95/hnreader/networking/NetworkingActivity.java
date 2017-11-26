@@ -1,4 +1,4 @@
-package me.szilard95.hnreader.network;
+package me.szilard95.hnreader.networking;
 
 /**
  * Created by szilard95 on 11/25/17.

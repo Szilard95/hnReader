@@ -1,4 +1,4 @@
-package me.szilard95.hnreader.model;
+package me.szilard95.hnreader.helpers;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
