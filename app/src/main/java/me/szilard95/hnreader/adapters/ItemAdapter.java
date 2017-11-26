@@ -106,31 +106,32 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void saveItem(int adapterPosition) {
+    public void saveItem(final int adapterPosition) {
         final Item hnItem = itemList.get(adapterPosition);
         List<Item> items = Item.find(Item.class, "hn_Id = ?", hnItem.getHnId().toString());
         if (items.size() > 0) {
             Item existing = items.get(0);
             existing.delete();
+            Item.deleteAll(Item.class, "parent_Story = ?", existing.getHnId().toString());
         }
-
-        notifyItemChanged(adapterPosition);
 
         ((NetworkingActivity) context).getApi().getItem(hnItem.getHnId()).enqueue(new Callback<Item>() {
             @Override
             public void onResponse(Call<Item> call, Response<Item> response) {
-                Item hnItem = response.body();
-                if (hnItem == null) return;
-                hnItem.setKidsAsString();
-                hnItem.setParentStory(hnItem.getHnId());
-                hnItem.save();
-                if (hnItem.getDescendants() <= 0) return;
-                new RequestComments().execute(hnItem);
+                Item i = response.body();
+                if (i == null) return;
+                i.setKidsAsString();
+                i.setParentStory(i.getHnId());
+                i.save();
+                notifyItemChanged(adapterPosition);
+                if (i.getDescendants() <= 0) return;
+                new RequestComments().execute(i);
             }
 
             @Override
             public void onFailure(Call<Item> call, Throwable t) {
-                hnItem.save();
+                notifyItemChanged(adapterPosition);
+                Utils.showErrorToast(context);
             }
         });
     }
