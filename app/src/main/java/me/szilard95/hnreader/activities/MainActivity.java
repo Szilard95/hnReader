@@ -22,6 +22,7 @@ import java.util.List;
 
 import me.szilard95.hnreader.R;
 import me.szilard95.hnreader.adapters.ItemAdapter;
+import me.szilard95.hnreader.helpers.Utils;
 import me.szilard95.hnreader.models.Item;
 import me.szilard95.hnreader.networking.CallStatus;
 import me.szilard95.hnreader.networking.HnApi;
@@ -108,8 +109,8 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                Toast.makeText(MainActivity.this, R.string.saving, Toast.LENGTH_SHORT).show();
                 itemAdapter.saveItem(viewHolder.getAdapterPosition());
-                Toast.makeText(MainActivity.this, R.string.saved, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -212,7 +213,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
         @Override
         protected void onPreExecute() {
             updating = true;
-            Toast.makeText(MainActivity.this, R.string.loading, Toast.LENGTH_SHORT).show();
+            Utils.showLoadingToast(MainActivity.this);
         }
 
         @Override
@@ -221,7 +222,7 @@ public class MainActivity extends ThemeActivity implements NavigationView.OnNavi
             itemAdapter.notifyDataSetChanged();
             if (s == CallStatus.END)
                 endReached = true;
-            Toast.makeText(MainActivity.this, s.toString(), Toast.LENGTH_SHORT).show();
+            if (s == CallStatus.ERROR) Utils.showErrorToast(MainActivity.this);
         }
 
         @Override

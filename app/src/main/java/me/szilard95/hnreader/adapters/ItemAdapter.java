@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.URI;
@@ -204,7 +203,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
         @Override
         protected void onPostExecute(CallStatus callStatus) {
-            Toast.makeText(context, callStatus.toString(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, callStatus.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 }

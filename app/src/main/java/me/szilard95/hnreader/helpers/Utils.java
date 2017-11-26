@@ -1,5 +1,10 @@
 package me.szilard95.hnreader.helpers;
 
+import android.content.Context;
+import android.widget.Toast;
+
+import me.szilard95.hnreader.R;
+
 public final class Utils {
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm";
 
@@ -18,5 +23,13 @@ public final class Utils {
         while (i >= 0 && Character.isWhitespace(source.charAt(i)));
 
         return source.subSequence(0, i + 1);
+    }
+
+    public static void showErrorToast(Context context) {
+        Toast.makeText(context, R.string.error_loading, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showLoadingToast(Context context) {
+        Toast.makeText(context, R.string.loading, Toast.LENGTH_SHORT).show();
     }
 }

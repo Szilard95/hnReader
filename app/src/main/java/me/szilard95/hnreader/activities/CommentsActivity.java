@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ import java.util.List;
 
 import me.szilard95.hnreader.R;
 import me.szilard95.hnreader.adapters.CommentAdapter;
+import me.szilard95.hnreader.helpers.Utils;
 import me.szilard95.hnreader.models.Item;
 import me.szilard95.hnreader.networking.CallStatus;
 import me.szilard95.hnreader.networking.HnApi;
@@ -81,7 +81,6 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
         recyclerViewComments.setAdapter(commentAdapter);
         showingCached = hnItem.isCached();
         if (!hnItem.isCached()) {
-            Toast.makeText(this, R.string.loading, Toast.LENGTH_SHORT).show();
             api.getItem(hnItem.getHnId()).enqueue(new Callback<Item>() {
                 @Override
                 public void onResponse(Call<Item> call, Response<Item> response) {
@@ -95,7 +94,7 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
 
                 @Override
                 public void onFailure(Call<Item> call, Throwable t) {
-                    Toast.makeText(CommentsActivity.this, R.string.error_loading, Toast.LENGTH_SHORT).show();
+                    Utils.showErrorToast(CommentsActivity.this);
                 }
             });
         } else {
@@ -165,6 +164,7 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
     private class RequestComments extends AsyncTask<List<Long>, Void, CallStatus> {
         @Override
         protected void onPreExecute() {
+            Utils.showLoadingToast(CommentsActivity.this);
             commentAdapter.clear();
         }
 
@@ -175,7 +175,8 @@ public class CommentsActivity extends ThemeActivity implements NetworkingActivit
                 tvNoComments.setVisibility(View.VISIBLE);
             else {
                 tvNoComments.setVisibility(View.GONE);
-                Toast.makeText(CommentsActivity.this, s.toString(), Toast.LENGTH_SHORT).show();
+                if (s == CallStatus.ERROR)
+                    Utils.showErrorToast(CommentsActivity.this);
             }
         }
 
