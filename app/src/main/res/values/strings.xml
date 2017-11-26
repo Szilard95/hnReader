@@ -26,12 +26,12 @@
     <string name="no_content">[no content]</string>
     <string name="error_user">Error getting User</string>
     <string name="profile">HN</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="error_loading">Error loading</string>
-    <string name="hn_item_url">- https://news.ycombinator.com/item?id=</string>
     <string name="point">p</string>
-    <string name="saving">Saving...</string>
+    <string name="saving">Saving…</string>
     <string name="comments_not_saved">Comments not yet fully saved</string>
     <string name="reload">reload</string>
-    <string name="hn_user_url">https://news.ycombinator.com/user?id=</string>
+    <string name="hn_logo">HN Logo</string>
+    <string name="hacker_news_reader">Hacker News Reader</string>
 </resources>

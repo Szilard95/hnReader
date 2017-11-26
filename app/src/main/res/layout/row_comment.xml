@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/comment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,14 +19,16 @@
             android:id="@+id/comment_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="@dimen/padding_date"
-            android:textStyle="bold" />
+            android:layout_marginEnd="@dimen/margin_date"
+            android:textStyle="bold"
+            tools:text="2017-11-11" />
 
         <TextView
             android:id="@+id/comment_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="UserName" />
     </LinearLayout>
 
     <TextView
@@ -33,5 +36,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autoLink="all"
-        android:linksClickable="true" />
+        android:linksClickable="true"
+        tools:text="Lorem ipsum dolor sit amet" />
 </LinearLayout>

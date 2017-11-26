@@ -59,7 +59,7 @@
                 android:id="@+id/item_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="@dimen/padding_date"
+                android:layout_marginEnd="@dimen/margin_date"
                 tools:text="2017-09-12 12:34" />
 
             <TextView
@@ -82,6 +82,7 @@
             android:id="@+id/item_btn_comments"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/title_activity_comments"
             android:src="@android:drawable/stat_notify_chat" />
 
         <TextView
