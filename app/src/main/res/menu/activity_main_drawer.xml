@@ -2,32 +2,41 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-        <group android:id="@+id/nav_stories">
-                <item
-                    android:id="@+id/nav_top"
-                    android:title="@string/top_stories" />
-                <item
-                    android:id="@+id/nav_new"
-                    android:title="@string/new_stories" />
-                <item
-                    android:id="@+id/nav_best"
-                    android:title="@string/best_stories" />
-        </group>
+    <group android:id="@+id/nav_stories">
+        <item
+            android:id="@+id/nav_top"
+            android:icon="@drawable/ic_whatshot_black_24dp"
+            android:title="@string/top_stories" />
+        <item
+            android:id="@+id/nav_new"
+            android:icon="@drawable/ic_announcement_black_24dp"
+            android:title="@string/new_stories" />
 
-        <group android:id="@+id/nav_other_hn">
-                <item
-                    android:id="@+id/nav_ask"
-                    android:title="@string/ask_hn" />
-                <item
-                    android:id="@+id/nav_show"
-                    android:title="@string/show_hn" />
-                <item
-                    android:id="@+id/nav_jobs"
-                    android:title="@string/jobs" />
-        </group>
-        <group android:id="@+id/nav_other">
-                <item
-                    android:id="@+id/nav_saves"
-                    android:title="@string/saves" />
-        </group>
+        <item
+            android:id="@+id/nav_best"
+            android:icon="@drawable/ic_trending_up_black_24dp"
+            android:title="@string/best_stories" />
+
+    </group>
+
+    <group android:id="@+id/nav_other_hn">
+        <item
+            android:id="@+id/nav_ask"
+            android:icon="@drawable/ic_question_answer_black_24dp"
+            android:title="@string/ask_hn" />
+        <item
+            android:id="@+id/nav_show"
+            android:icon="@drawable/ic_done_black_24dp"
+            android:title="@string/show_hn" />
+        <item
+            android:id="@+id/nav_jobs"
+            android:icon="@drawable/ic_work_black_24dp"
+            android:title="@string/jobs" />
+    </group>
+    <group android:id="@+id/nav_other">
+        <item
+            android:id="@+id/nav_saves"
+            android:icon="@drawable/ic_save_black_24dp"
+            android:title="@string/saves" />
+    </group>
 </menu>
